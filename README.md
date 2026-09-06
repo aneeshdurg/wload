@@ -2,4 +2,4 @@
 
 loads web content by parsing the query string.
 
-TODO write stuff here lol
+see <./about.html> for more info

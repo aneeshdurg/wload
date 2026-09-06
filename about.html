@@ -1,2 +1,22 @@
+<title>About wload</title>
 wload is designed to have small webpages exist as QR codes.
 The QR code only needs to contain a base URL with wload, and the data format is self documenting - it's just a data URL!
+
+The data URL becomes the content of the page.
+The only exception is that if the data URL flag is set to gzip;base64, then the contents are decompressed first.
+
+If you'd like to make your own, I've made a tool for this <a href="https://github.com/aneeshdurg/wload">here</a>.
+
+<pre>
+git clone https://github.com/aneeshdurg/wload
+cd wload
+# requires nodejs
+npm i
+# Put your page source in my-file.html
+./pack-html.js my-file.html https://moontowercomputer.club/~aneesh/wload
+</pre>
+
+The URL you pass to pack-html.js is assumed to be a hosted instance of wload, but you can host it yourself if you don't trust the availability of this particular instance.
+
+
+AI disclosure: All words on this page are my own, but the code for wload was AI generated.
