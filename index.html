@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Data URL Loader</title>
+<style>
+  html, body { margin: 0; height: 100%; }
+  body { display: flex; flex-direction: column; }
+  header { flex: 0 0 auto; padding: 4px 8px; font: 12px sans-serif; }
+  iframe { flex: 1 1 auto; border: none; width: 100%; display: block; }
+</style>
+</head>
+<body>
+<header><a href="about.html">about</a></header>
+<iframe id="content"></iframe>
+<script>
+async function resolveSrc(dataUrl) {
+  // Custom extension: data:<mimetype>;gzip;base64,<gzipped-base64>
+  // "gzip" isn't a real data-URL flag, but browsers won't decompress
+  // Content-Encoding on a data: URL, so we do it ourselves and hand
+  // the iframe a blob: URL instead.
+  const match = /^data:([^,;]*)((?:;[^,;]+)*),(.*)$/s.exec(dataUrl);
+  if (!match) return dataUrl;
+
+  const [, mediatype, flagStr, payload] = match;
+  const flags = flagStr.split(';').filter(Boolean);
+  if (!flags.includes('gzip')) return dataUrl;
+
+  const isBase64 = flags.includes('base64');
+  const bytes = isBase64
+    ? Uint8Array.from(atob(payload), c => c.charCodeAt(0))
+    : Uint8Array.from(decodeURIComponent(payload), c => c.charCodeAt(0));
+
+  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+  const blob = await new Response(stream).blob();
+  return URL.createObjectURL(new Blob([blob], { type: mediatype || 'text/plain' }));
+}
+
+(async () => {
+  let dataUrl = location.search.slice(1);
+  try { dataUrl = decodeURIComponent(dataUrl); } catch (e) {}
+  if (!dataUrl) return;
+
+  document.getElementById('content').src = await resolveSrc(dataUrl);
+})();
+</script>
+</body>
+</html>
